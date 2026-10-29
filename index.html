@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>献立食材リスト - 料理を選ぶだけで買い物リストを自動作成</title>
+  <meta name="description" content="豚の生姜焼きや肉じゃがなど200種類の定番家庭料理から選ぶだけで、必要な食材と分量を自動計算・合算し買い物リストを作成するWebアプリ。ブラウザ上で動作し個人情報不要。">
+
+  <!-- OGP / ソーシャルシェア設定 (GitHub Pages公開対応) -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="🍳 献立食材リスト - 料理を選ぶだけで買い物リストを自動作成">
+  <meta property="og:description" content="豚の生姜焼きや肉じゃがなど200種類の定番家庭料理から選ぶだけで、必要な食材と分量を自動計算・合算し買い物リストを作成するWebアプリ。">
+  <meta property="og:image" content="assets/demo.gif">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="🍳 献立食材リスト - 料理を選ぶだけで買い物リストを自動作成">
+  <meta name="twitter:description" content="豚の生姜焼きや肉じゃがなど200種類の定番家庭料理から選ぶだけで、必要な食材と分量を自動計算・合算し買い物リストを作成するWebアプリ。">
+  <meta name="twitter:image" content="assets/demo.gif">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="app-title-area">
+        <h1>🍳 献立食材リスト</h1>
+        <span class="menu-badge-count">200品搭載</span>
+      </div>
+
+      <!-- 人数切り替え -->
+      <div class="servings-control" aria-label="人数の選択">
+        <span class="servings-label">人数:</span>
+        <div class="servings-buttons" id="servings-selector">
+          <button type="button" class="serving-btn" data-servings="1">1人</button>
+          <button type="button" class="serving-btn is-active" data-servings="2">2人</button>
+          <button type="button" class="serving-btn" data-servings="3">3人</button>
+          <button type="button" class="serving-btn" data-servings="4">4人</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 検索 & カテゴリフィルタ -->
+  <section class="filter-section" aria-label="検索と絞り込み">
+    <div class="search-box-wrapper">
+      <span class="search-icon" aria-hidden="true">🔍</span>
+      <input
+        type="search"
+        id="recipe-search-input"
+        class="search-input"
+        placeholder="料理名や食材名で検索... (例: 生姜焼き、豚肉、玉ねぎ)"
+        aria-label="料理や食材の検索"
+        autocomplete="off"
+      >
+    </div>
+
+    <nav class="category-tabs" id="category-tabs" aria-label="料理カテゴリ">
+      <button type="button" class="cat-tab is-active" data-cat="すべて">すべて</button>
+      <button type="button" class="cat-tab" data-cat="ご飯・丼">ご飯・丼</button>
+      <button type="button" class="cat-tab" data-cat="麺類">麺類</button>
+      <button type="button" class="cat-tab" data-cat="肉料理">肉料理</button>
+      <button type="button" class="cat-tab" data-cat="魚料理">魚料理</button>
+      <button type="button" class="cat-tab" data-cat="野菜料理">野菜料理</button>
+      <button type="button" class="cat-tab" data-cat="汁物">汁物</button>
+      <button type="button" class="cat-tab" data-cat="卵・豆腐料理">卵・豆腐料理</button>
+      <button type="button" class="cat-tab" data-cat="その他">その他</button>
+    </nav>
+  </section>
+
+  <!-- メインコンテンツ -->
+  <main class="main-layout">
+    <!-- 左ペイン: メニュー一覧 -->
+    <section class="menu-pane" aria-labelledby="menu-list-heading">
+      <div class="menu-section-header">
+        <h2 id="menu-list-heading">料理を選ぶ</h2>
+        <span class="recipe-count-badge" id="visible-recipes-count">200品中 200品表示</span>
+      </div>
+      <div class="menu-grid" id="menu-cards-container" role="list">
+        <!-- JSでカードを動的生成 -->
+      </div>
+    </section>
+
+    <!-- 右ペイン: 買い物リスト -->
+    <aside class="shopping-pane" id="shopping-section" aria-labelledby="shopping-list-heading">
+      <div class="shopping-pane-header">
+        <h2 id="shopping-list-heading">🛒 買い物リスト</h2>
+      </div>
+
+      <div class="shopping-controls">
+        <label class="toggle-row" for="hide-seasoning-toggle">
+          <span>調味料を隠す</span>
+          <div class="toggle-switch">
+            <input type="checkbox" id="hide-seasoning-toggle">
+            <span class="toggle-slider"></span>
+          </div>
+        </label>
+        <label class="toggle-row" for="exclude-checked-toggle">
+          <span>チェック済みを除外してコピー</span>
+          <div class="toggle-switch">
+            <input type="checkbox" id="exclude-checked-toggle">
+            <span class="toggle-slider"></span>
+          </div>
+        </label>
+        <button type="button" class="copy-btn" id="copy-clipboard-btn">
+          <span aria-hidden="true">📋</span>
+          <span>リストをコピー</span>
+        </button>
+      </div>
+
+      <div class="shopping-items-list" id="shopping-list-items" role="list">
+        <!-- 買い物リスト項目を動的描画 -->
+      </div>
+    </aside>
+  </main>
+
+  <!-- フッター (Zero Dev 規約準拠) -->
+  <footer class="app-footer">
+    <p class="footer-copy">© 2026 Zero Dev (tk030) · <a href="LICENSE" target="_blank" rel="noopener">MIT License</a> · <a href="https://zero-dev.jp" target="_blank" rel="noopener">Zero Dev</a></p>
+    <p class="footer-disclaimer">【免責事項】本ツールは一般的な家庭料理のレシピ情報を基に食材を計算する支援ツールです。計算結果の正確さや網羅性について保証はしません。実際の買い物や調理にあたってはご自身の判断でご確認をお願いいたします。</p>
+  </footer>
+
+  <!-- 固定下部バー (フローティングバー) -->
+  <div class="floating-bar is-hidden" id="floating-bar" role="toolbar" aria-label="選択中メニューバー">
+    <div class="floating-info">
+      <span class="floating-count-badge" id="selected-count">0品</span>
+      <span class="floating-names" id="selected-names">選択なし</span>
+    </div>
+    <div class="floating-actions">
+      <button type="button" class="clear-btn" id="clear-selection-btn">クリア</button>
+      <button type="button" class="scroll-shopping-btn" id="scroll-to-shopping-btn">リストを見る ↓</button>
+    </div>
+  </div>
+
+  <!-- トースト通知 -->
+  <div class="toast-msg" id="toast-message" role="status" aria-live="polite">コピーしました！</div>
+
+  <!-- スクリプト群 (スタンドアロン対応) -->
+  <script src="js/data.js"></script>
+  <script src="js/calc.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
