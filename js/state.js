@@ -164,6 +164,39 @@ function toggleIngredientCheck(state, itemOrKey) {
 }
 
 /**
+ * 分量が変わった食材のチェックを外す (R-03: 買い忘れ防止)
+ * 人数変更や料理の追加・解除で必要量が変わった食材だけを対象にし、
+ * 関係しない食材のチェックは残す。
+ * @param {Object} state - アプリ状態
+ * @param {Array<Object>} beforeItems - 変更前のマージ済み食材リスト
+ * @param {Array<Object>} afterItems - 変更後のマージ済み食材リスト
+ * @returns {boolean} チェックを外した食材があったか
+ */
+function uncheckChangedIngredients(state, beforeItems, afterItems) {
+  if (!state || !Array.isArray(state.checkedItems) || state.checkedItems.length === 0) return false;
+  if (!Array.isArray(beforeItems) || !Array.isArray(afterItems)) return false;
+
+  const beforeAmounts = new Map(beforeItems.map((item) => [item.key, item.displayAmount]));
+  const changedKeys = new Set();
+
+  afterItems.forEach((item) => {
+    const prevAmount = beforeAmounts.get(item.key);
+    if (prevAmount === undefined || prevAmount !== item.displayAmount) {
+      changedKeys.add(item.key);
+      (Array.isArray(item.aliasKeys) ? item.aliasKeys : []).forEach((alias) => changedKeys.add(alias));
+    }
+  });
+
+  if (changedKeys.size === 0) return false;
+
+  const remaining = state.checkedItems.filter((key) => !changedKeys.has(key));
+  if (remaining.length === state.checkedItems.length) return false;
+
+  state.checkedItems = remaining;
+  return true;
+}
+
+/**
  * クリップボードコピー用テキストの生成 (仕様書 10.1)
  * @param {Array<Object>} selectedRecipes - 選択された料理オブジェクト配列
  * @param {Array<Object>} mergedIngredients - マージ済み食材リスト
@@ -225,6 +258,7 @@ if (typeof module !== 'undefined' && module.exports) {
     clearState,
     toggleMenuSelection,
     toggleIngredientCheck,
+    uncheckChangedIngredients,
     isItemChecked,
     formatClipboardText
   };
@@ -238,6 +272,7 @@ if (typeof window !== 'undefined') {
     clearState,
     toggleMenuSelection,
     toggleIngredientCheck,
+    uncheckChangedIngredients,
     isItemChecked,
     formatClipboardText
   };

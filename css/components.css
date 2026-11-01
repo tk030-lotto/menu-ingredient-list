@@ -284,15 +284,15 @@
   max-width: 1400px;
   margin: 40px auto 80px;
   padding: 24px 20px;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--border);
   text-align: center;
   color: var(--text-muted);
   font-size: 0.8125rem;
   line-height: 1.6;
 }
 .footer-copy { margin-bottom: 8px; }
-.footer-copy a { color: var(--text-secondary); text-decoration: underline; text-underline-offset: 3px; }
-.footer-copy a:hover { color: var(--text-primary); }
+.footer-copy a { color: var(--text-muted); text-decoration: underline; text-underline-offset: 3px; }
+.footer-copy a:hover { color: var(--text-main); }
 .footer-disclaimer { max-width: 800px; margin: 0 auto; font-size: 0.75rem; opacity: 0.85; }
 
 

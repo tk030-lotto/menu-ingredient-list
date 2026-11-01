@@ -134,10 +134,13 @@
           if (!btn) return;
           const val = parseInt(btn.getAttribute('data-servings'), 10);
           if (val) {
+            const beforeItems = getMergedShoppingList();
             state.servings = val;
+            const uncheckedChanged = State.uncheckChangedIngredients(state, beforeItems, getMergedShoppingList());
             persistState();
             MenuApp.syncControlsFromState();
             MenuApp.renderShoppingList();
+            if (uncheckedChanged) showToast('人数を変えたため、分量が変わった食材のチェックを外しました');
           }
         });
       }
@@ -197,7 +200,19 @@
             state.excludeCheckedOnCopy
           );
           const ok = await copyText(text);
-          showToast(ok ? '📋 リストをコピーしました！' : 'コピーに失敗しました');
+          if (ok) {
+            showToast('📋 リストをコピーしました！');
+            return;
+          }
+          // 失敗時は、全文を選択して手動コピーできるよう提示する (R-05)
+          try {
+            if (typeof window.prompt === 'function') {
+              window.prompt('コピーできませんでした。以下のテキストを選択してコピーしてください。', text);
+            }
+          } catch (err) {
+            console.warn('手動コピー用のテキスト表示に失敗しました:', err);
+          }
+          showToast('コピーできませんでした。表示されたテキストを選択してコピーしてください', true);
         });
       }
 
@@ -223,11 +238,14 @@
     },
 
     toggleMenu(menuId) {
+      const beforeItems = getMergedShoppingList();
       State.toggleMenuSelection(state, menuId);
+      const uncheckedChanged = State.uncheckChangedIngredients(state, beforeItems, getMergedShoppingList());
       persistState();
       MenuApp.renderMenuCards();
       MenuApp.renderFloatingBar();
       MenuApp.renderShoppingList();
+      if (uncheckedChanged) showToast('料理を変えたため、分量が変わった食材のチェックを外しました');
     },
 
     toggleCheck(itemOrKey) {
